@@ -1,0 +1,6 @@
+deku.settings_form:
+  title: Deku
+  description: Configure Deku.
+  parent: system.admin_config_system
+  route_name: deku.settings_form
+  weight: 10

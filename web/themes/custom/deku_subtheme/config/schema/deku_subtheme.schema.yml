@@ -1,0 +1,5 @@
+# Schema for the configuration files of the Bootstrap Barrio Subtheme.
+
+deku_subtheme.settings:
+  type: bootstrap_barrio.settings
+  label: "Bootstrap Barrio settings"
