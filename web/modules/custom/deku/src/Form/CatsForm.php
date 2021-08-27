@@ -2,10 +2,10 @@
 
 namespace Drupal\deku\Form;
 
-use Drupal\Core\Form\FormBase;
+use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
 
-class CatsForm extends FormBase{
+class CatsForm extends ConfigFormBase{
   
   /**
    * {@inheritdoc}
@@ -18,12 +18,14 @@ class CatsForm extends FormBase{
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
 
+    $config = $this->config('deku.settings');
     // Create a $form API array.
     $form['cats_name'] = array(
-      '#type' => 'tel',
+      '#type' => 'textfield',
       '#title' => $this
         ->t("Your cat's name:"),
-      '#description' => $this->t("Min 2 and max 32 characters")
+      '#description' => $this->t("Min 2 and max 32 characters"),
+      '#default_value'=> $config->get("deku.source_text")
     );
     $form['add_cat'] = array(
       '#type' => 'submit',
@@ -36,17 +38,24 @@ class CatsForm extends FormBase{
    * {@inheritdoc}
    */
   public function validateForm(array &$form, FormStateInterface $form_state) {
-
+    $form_len = strlen($form_state->getValue('cats_name'));
+    if ($form_len < 3) {
+      $form_state->setErrorByName('cats_name', $this->t('The cat name is too short. Please enter a valid cat name'));
+    }elseif ($form_len > 32) {
+      $form_state->setErrorByName('cats_name', $this->t('The cat name is too long. Please enter a valid cat name'));
+    }
   }
   /**
    * {@inheritdoc}
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
     $config = $this->config('deku.settings');
-    $config->set('deku.source_text', $form_state->getValue('source_text'));
-    $config->set('deku.page_title', $form_state->getValue('page_title'));
+    $config->set('deku.source_text', $form_state->getValue('cats_name'));
     $config->save();
-    return parent::submitForm($form, $form_state);
+    $this
+    ->messenger()
+    ->addStatus($this
+    ->t('The cat name has been saved'));
   }
   /**
    * {@inheritdoc}
