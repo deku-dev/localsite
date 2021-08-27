@@ -8,7 +8,7 @@ use Drupal\Core\Controller\ControllerBase;
  * Returns responses for Deku routes.
  */
 class DekuController extends ControllerBase {
-
+  
   /**
    * Builds the response.
    */
@@ -18,6 +18,7 @@ class DekuController extends ControllerBase {
       '#type' => 'item',
       '#markup' => $this->t('Hello! You can add here a photo of your cat.'),
     ];
+    $build['form_cats'] = \Drupal::formBuilder()->getForm('Drupal\deku\Form\CatsForm');
 
     return $build;
   }
