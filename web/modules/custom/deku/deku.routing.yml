@@ -5,11 +5,3 @@ deku.example:
     _controller: '\Drupal\deku\Controller\DekuController::build'
   requirements:
     _permission: "access content"
-
-deku.settings_form:
-  path: "/deku/cats"
-  defaults:
-    _title: "Deku settings"
-    _form: 'Drupal\deku\Form\SettingsForm'
-  requirements:
-    _permission: "access content"
