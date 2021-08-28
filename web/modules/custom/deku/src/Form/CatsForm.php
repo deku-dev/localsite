@@ -42,8 +42,20 @@ class CatsForm extends ConfigFormBase{
       ],
       '#decription' => $this->t("Email is allowed for example: example@mail.com
       "),
-      
     );
+
+    $form['image_cats'] = [
+      '#type' => 'managed_file',
+      '#title' => t('Image cats'),
+      '#upload_validators' => [
+        'file_validate_extensions' => ['gif png jpg jpeg'],
+        'file_validate_size' => [25600000],
+      ],
+      '#theme' => 'image_widget',
+      '#preview_image_style' => 'medium',
+      '#upload_location' => 'public://',
+      '#required' => TRUE,
+    ];
 
     $form['add_cat'] = array(
       '#type' => 'submit',
