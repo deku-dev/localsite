@@ -30,6 +30,11 @@ class CatsForm extends ConfigFormBase{
       '#description' => $this->t("Min 2 and max 32 characters"),
       '#default_value'=> $config->get("deku.source_text")
     );
+$form['email'] = array(
+  '#type' => 'email',
+  '#title' => $this->t('Your email:'),
+);
+
     $form['add_cat'] = array(
       '#type' => 'submit',
       '#value' => $this
