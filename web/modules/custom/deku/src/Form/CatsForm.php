@@ -8,9 +8,10 @@ use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Ajax\AjaxResponse;
 use Drupal\Core\Ajax\HtmlCommand;
+use Drupal\file\Entity\File;
 
 class CatsForm extends ConfigFormBase{
-  
+
   public $stateForm;
   /**
    * {@inheritdoc}
@@ -48,14 +49,14 @@ class CatsForm extends ConfigFormBase{
 
     $form['image_cats'] = [
       '#type' => 'managed_file',
-      '#title' => t('Image cats'),
+      '#title' => $this->t('Image cats'),
       '#upload_validators' => [
-        'file_validate_extensions' => ['gif png jpg jpeg'],
+        'file_validate_extensions' => ['png jpg jpeg'],
         'file_validate_size' => [25600000],
       ],
       '#theme' => 'image_widget',
       '#preview_image_style' => 'medium',
-      '#upload_location' => 'public://',
+      '#upload_location' => 'public://cats_images/',
       '#required' => TRUE,
     ];
 
@@ -114,11 +115,27 @@ class CatsForm extends ConfigFormBase{
    * {@inheritdoc}
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
+    $connection = \Drupal::service('database');
 
-    $config = $this->config('deku.settings');
-    $config->set('deku.source_text', $form_state->getValue('cats_name'));
-    $config->set('deku.email', $form_state->getValue('email'));
-    $config->save();
+
+    $event_image = $form_state->getValue('image_cats');
+    $file = File::load(reset($event_image));
+    $file->setPermanent();
+    $file->save();
+
+    $result = $connection->insert('deku')
+    ->fields([
+      'cats_name' => $form_state->getValue("cats_name"),
+      'email' => $form_state->getValue('email'),
+      'created' => \Drupal::time()->getRequestTime(),
+      'image_url'=>$file->getFilename()
+    ])
+    ->execute();
+
+    // $config = $this->config('deku.settings');
+    // $config->set('deku.source_text', $form_state->getValue('cats_name'));
+    // $config->set('deku.email', $form_state->getValue('email'));
+    // $config->save();
     $message = 'The cat name has been saved';
     $this
     ->messenger()
@@ -128,7 +145,7 @@ class CatsForm extends ConfigFormBase{
       "success", $message,"status"
     ];
   }
-  public function setMessage(array $form, FormStateInterface $form_state) {
+  public function setMessage(array $form, FormStateInterface $form_state): AjaxResponse {
 
     $response = new AjaxResponse();
     if ($this->stateForm[0] == 'noerror') {
