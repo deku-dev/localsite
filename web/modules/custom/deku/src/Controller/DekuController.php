@@ -23,4 +23,12 @@ class DekuController extends ControllerBase {
     return $build;
   }
 
+
+  public function content() {
+    return array(
+        '#theme' => 'cats-template',
+        '#cats_list' => $test/* result query */,
+    );
+}
+
 }
