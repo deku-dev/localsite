@@ -47,7 +47,7 @@ class CatsForm extends ConfigFormBase{
 
     $form['image_cats'] = [
       '#type' => 'managed_file',
-      '#title' => t('Image cats'),
+      '#title' => $this->t('Image cats'),
       '#upload_validators' => [
         'file_validate_extensions' => ['png jpg jpeg'],
         'file_validate_size' => [25600000],
