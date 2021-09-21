@@ -31,13 +31,14 @@ class CatsForm extends ConfigFormBase{
       '#title' => $this
         ->t("Your cat's name:"),
       '#description' => $this->t("Min 2 and max 32 characters"),
-      '#default_value'=> $config->get("deku.source_text"),
-      '#attributes' => array('min-length' => '2'),
+      '#attributes' => array(
+        'min-length' => '2',
+        'max-length' => '32'
+      ),
     );
     $form['email'] = array(
       '#type' => 'email',
       '#title' => $this->t('Your email:'),
-      '#default_value'=> $config->get("deku.email"),
       '#required' => TRUE,
       '#ajax' => [
         'callback'=>'::validateEmailAjax',
@@ -131,11 +132,6 @@ class CatsForm extends ConfigFormBase{
       'image_url'=>$file->getFilename()
     ])
     ->execute();
-
-    // $config = $this->config('deku.settings');
-    // $config->set('deku.source_text', $form_state->getValue('cats_name'));
-    // $config->set('deku.email', $form_state->getValue('email'));
-    // $config->save();
     $message = 'The cat name has been saved';
     $this
     ->messenger()

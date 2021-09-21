@@ -8,11 +8,11 @@ use Drupal\Core\Controller\ControllerBase;
  * Returns responses for Deku routes.
  */
 class DekuController extends ControllerBase {
-  
+
   /**
    * Builds the response.
    */
-  public function addCatsPage() {
+  public function addCatsPage(): array {
 
     $build['content'] = [
       '#type' => 'item',
@@ -27,24 +27,20 @@ class DekuController extends ControllerBase {
    *
    * @return array
    */
-  public function listCats(){
+  private function getCatsData(): array {
     $database = \Drupal::database();
     $query = $database->query("SELECT cats_name,email, image_url, created FROM {deku}");
-    $rows = $query->fetchAll();
-    $build['table'] = [
-      '#type'=> 'table',
-      '#caption' => $this->t('Cats list.'),
-      '#header'=>[$this->t('Cat name'), $this->t('Email'), $this->t('Created'), $this->t('Image')],
-      '#rows'=>$rows
-    ];
-    return $build;
+    return $query->fetchAll();
   }
 
 
-  public function content() {
+
+  public function buildList(): array {
+    $form_edit = \Drupal::formBuilder()->getForm('Drupal\deku\Form\ControlCats');
     return array(
         '#theme' => 'cats-template',
-        '#cats_list' => $test/* result query */,
+        '#cats_list' => $this->getCatsData(),
+        '#form_edit' => $form_edit
     );
 }
 

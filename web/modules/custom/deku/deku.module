@@ -9,9 +9,43 @@
  * @see https://www.drupal.org/node/2217931
  */
 function deku_theme($existing, $type, $theme, $path) {
-    return array(
-        'cats-template' => array(
-            'variables' => array('cats_list' => NULL),
-        ),
+  return array(
+    'cats-template' => array(
+      'variables' => array(
+        'cats_list' => NULL,
+        'form_edit'=>NULL
+      ),
+    )
+  );
+}
+
+/**
+ * My custom page callback
+ */
+function mymodule_get_json() {
+  $post = file_get_contents("php://input", TRUE);
+
+  if ($post) {
+    $json = drupal_json_decode($post);
+    $result = mymodule_some_processing_function($json);
+
+  if ($result['status'] == TRUE) {
+    $output = array(
+      'status'  => 'success',
+      'message' => $result['message'],
     );
+  }
+  else {
+    $output = array(
+      'status'  => 'error',
+      'message' => $result['message'],
+      'code'    => $result['code'],
+    );
+  }
+
+    drupal_json_output($output);
+    drupal_exit();
+  }else {
+    drupal_access_denied();
+  }
 }
