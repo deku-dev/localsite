@@ -22,10 +22,12 @@ class DekuController extends ControllerBase {
 
     return $build;
   }
+
   /**
-   * Function render list all cats
+   * Function render list all cats.
    *
    * @return array
+   *   Result query
    */
   private function getCatsData(): array {
     $database = \Drupal::database();
@@ -33,15 +35,19 @@ class DekuController extends ControllerBase {
     return $query->fetchAll();
   }
 
-
-
+  /**
+   * Build all element from database.
+   *
+   * @return array
+   *   Render twig template.
+   */
   public function buildList(): array {
     $form_edit = \Drupal::formBuilder()->getForm('Drupal\deku\Form\ControlCats');
-    return array(
-        '#theme' => 'cats-template',
-        '#cats_list' => $this->getCatsData(),
-        '#form_edit' => $form_edit
-    );
-}
+    return [
+      '#theme' => 'cats-template',
+      '#cats_list' => $this->getCatsData(),
+      '#form_edit' => $form_edit,
+    ];
+  }
 
 }
