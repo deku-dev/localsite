@@ -23,6 +23,9 @@ class ControlCats extends ConfigFormBase {
    * {@inheritdoc}
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
+    $form['edit_id'] = [
+      '#type' => 'hidden',
+    ];
     $form['edit_name'] = [
       '#type' => 'textfield',
       '#title' => $this->t("Your cat's name:"),
@@ -78,6 +81,11 @@ class ControlCats extends ConfigFormBase {
    */
   public function deleteCat(array &$form, FormStateInterface $form_state) {
     $response = new AjaxResponse();
+    $connection = \Drupal::service('database');
+    var_dump($response);
+    $connection->delete('deku')
+      ->condition('id', 5)
+      ->execute();
   }
 
   /**

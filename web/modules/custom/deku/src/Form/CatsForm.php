@@ -151,7 +151,12 @@ class CatsForm extends ConfigFormBase {
         'image_url' => $file->getFilename(),
       ])
       ->execute();
-    $message = 'The cat name has been saved';
+    if ($result) {
+      $message = 'The cat name has been saved';
+    }
+    else {
+      $message = "Error, please repeat";
+    }
     $this
       ->messenger()
       ->addStatus($message);
