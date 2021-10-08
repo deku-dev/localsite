@@ -31,7 +31,7 @@ class DekuController extends ControllerBase {
    */
   private function getCatsData(): array {
     $database = \Drupal::database();
-    $query = $database->query("SELECT cats_name,email, image_url, created FROM {deku}");
+    $query = $database->query("SELECT id, cats_name,email, image_url, created FROM {deku}");
     return $query->fetchAll();
   }
 
@@ -42,11 +42,13 @@ class DekuController extends ControllerBase {
    *   Render twig template.
    */
   public function buildList(): array {
-    $form_edit = \Drupal::formBuilder()->getForm('Drupal\deku\Form\ControlCats');
+    $form_edit = \Drupal::formBuilder()->getForm('Drupal\deku\Form\EditForm');
+    $form_delete = \Drupal::formBuilder()->getForm('Drupal\deku\Form\DeleteForm');
     return [
       '#theme' => 'cats-template',
       '#cats_list' => $this->getCatsData(),
       '#form_edit' => $form_edit,
+      '#form_delete' => $form_delete,
     ];
   }
 

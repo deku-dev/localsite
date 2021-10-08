@@ -22,80 +22,76 @@
 
 <table class="table">
 	{% for cat in cats_list %}
-		<tr class="table-row" data-cats-id="{{ cat.id }}">
+		<tr class="table-row">
+			<td class="table-col">
+				<div class="form-check">
+					<input class="form-check-input js-delete-list" data-cat-id="{{ cat.id}}" type="checkbox" value="" id="flexCheckDefault">
+				</div>
+			</td>
 			<td class="table-col">{{ cat.cats_name }}</td>
 
 			<td class="table-col">{{ cat.email }}</td>
 
-			<td class="table-col">
+			<td class="table-col text-center">
 				<a href="/sites/default/files/cats_images/{{ cat.image_url }}" class="link-image">
-					<img class="img-thumbnail" src="/sites/default/files/cats_images/{{ cat.image_url }}" alt="{{ cat.cats_name }}"/>
+					{% if not cat.image_url is empty %}
+						<img class="img-thumbnail w-50" src="/sites/default/files/cats_images/{{ cat.image_url }}" alt="{{ cat.cats_name }}"/>
+					{% endif %}
 				</a>
 			</td>
 
 			<td class="table-col">{{ cat.created|date("d/m/Y h:i:s") }}</td>
 
 			<td class="table-col">
-				<button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">
+				<button type="button" class="btn btn-danger js-modal__show" data-bs-toggle="modal" data-cat-id="{{ cat.id }}" data-bs-target="#deleteModal">
 					{{ "Delete" | t }}
 				</button>
 			</td>
 
 			<td class="table-col">
-				<button type="button" data-bs-toggle="modal" data-bs-target="#editModal" class="btn-primary btn">
+				<button type="button" data-bs-toggle="modal" data-bs-target="#editModal" data-image-field="{{cat.image_url}}" data-cat-id="{{ cat.id }}" class=" js-modal__show btn-primary btn">
 					{{ "Edit" | t }}
 				</button>
 			</td>
 		</tr>
 	{% endfor %}
 </table>
+<button type="button" id="js-delete-some" class="btn btn-danger mb-5" data-bs-toggle="modal" data-bs-target="#deleteModal">
+	{{ "Delete selected" | t }}
+</button>
 {# Modal window for delete confirmation #}
-<form{{form_edit.attributes}}>
-	{{ form_edit.edit_id }}
-	<div class="modal fade" aria-labelledby="DeleteModalLabel" aria-hidden="true" id="deleteModal" tabindex="-1">
-		<div class="modal-dialog">
-			<div class="modal-content">
-				<div class="modal-header">
-					<h5 class="modal-title">{{ "Confirm Delete" | t }}</h5>
-					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-				</div>
-				<div class="modal-body">
-					<p>
-						{{ "Confirm delete this entry? With cat name " | t }}
-						<span class="text-danger">{# To replace text with the name of the string #}</span>
-					</p>
-				</div>
-				<div class="modal-footer">
-					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-						{{ "Cancel" | t }}
-					</button>
-					{{ form_edit.delete_cat }}
-				</div>
+<div class="modal fade" aria-labelledby="DeleteModalLabel" aria-hidden="true" id="deleteModal" tabindex="-1">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title">{{ "Confirm Delete" | t }}</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<div class="modal-body">
+				<p>
+					{{ "Confirm delete this entry? With cat name " | t }}
+					<span class="text-danger">{# To replace text with the name of the string #}</span>
+				</p>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-secondary mx-2" data-bs-dismiss="modal">
+					{{ "Cancel" | t }}
+				</button>
+				{{ form_delete }}
 			</div>
 		</div>
 	</div>
+</div>
 
-	{# Modal window for edit forms #}
-	<div class="modal fade" aria-labelledby="EditModalLabel" aria-hidden="true" id="editModal" tabindex="-1">
-		<div class="modal-dialog">
-			<div class="modal-content">
-				<div class="modal-header">
-					<h5 class="modal-title">{{ "Edit entry" | t }}</h5>
-					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-				</div>
-				<div class="modal-body">
-					{{form_edit.edit_name}}
-					{{form_edit.edit_email}}
-					{{form_edit.edit_image}}
-					<span class="text-danger label-alert"></span>
-				</div>
-				<div class="modal-footer">
-					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-						{{ "Cancel" | t }}
-					</button>
-					{{ form_edit.edit_cat }}
-				</div>
+{# Modal window for edit forms #}
+<div class="modal fade" aria-labelledby="EditModalLabel" aria-hidden="true" id="editModal" tabindex="-1">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title">{{ "Edit entry" | t }}</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 			</div>
+			{{form_edit}}
 		</div>
 	</div>
-</form>
+</div>

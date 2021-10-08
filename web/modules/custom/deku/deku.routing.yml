@@ -11,5 +11,6 @@ deku.cats:
   defaults:
     _title: "Cats list"
     _controller: '\Drupal\deku\Controller\DekuController::buildList'
+
   requirements:
     _permission: "access content"

@@ -2,6 +2,7 @@
 
 namespace Drupal\deku\Form;
 
+use Drupal;
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Ajax\AjaxResponse;
@@ -18,22 +19,19 @@ class CatsForm extends ConfigFormBase {
    *
    * @var array
    */
-  public $stateForm;
+  public $stateForm = 'noerror';
 
   /**
    * {@inheritdoc}
    */
-  public function getFormId() {
+  public function getFormId(): string {
     return "deku_form";
   }
 
   /**
    * {@inheritdoc}
    */
-  public function buildForm(array $form, FormStateInterface $form_state) {
-
-    $config = $this->config('deku.settings');
-    // Create a $form API array.
+  public function buildForm(array $form, FormStateInterface $form_state): array {
     $form['cats_name'] = [
       '#type' => 'textfield',
       '#title' => $this
@@ -43,19 +41,28 @@ class CatsForm extends ConfigFormBase {
         'min-length' => '2',
         'max-length' => '32',
       ],
+      '#ajax' => [
+        'callback' => '::validateForm',
+        'event' => 'change',
+      ],
     ];
     $form['email'] = [
       '#type' => 'email',
       '#title' => $this->t('Your email:'),
       '#required' => TRUE,
       '#ajax' => [
-        'callback' => '::validateEmailAjax',
+        'callback' => '::validateForm',
         'event' => 'input',
       ],
       '#decription' => $this->t("Email is allowed for example: example@mail.com
       "),
+      '#validators' => [
+        'email',
+      ],
+      '#filters' => [
+        'lowercase',
+      ],
     ];
-
     $form['image_cats'] = [
       '#type' => 'managed_file',
       '#title' => $this->t('Image cats'),
@@ -68,77 +75,66 @@ class CatsForm extends ConfigFormBase {
       '#upload_location' => 'public://cats_images/',
       '#required' => TRUE,
     ];
-
     $form['add_cat'] = [
       '#type' => 'submit',
       '#value' => $this
         ->t('Add cat'),
       '#ajax' => [
         'callback' => '::setMessage',
+        'event' => 'click',
       ],
+    ];
+    $form['label-error'] = [
+      '#markup' => '<span id="messenger-label"></span>',
     ];
     return $form;
   }
 
   /**
-   * Validate email ajax.
-   *
-   * @param array $form
-   *   From ConfigFormBase.
-   * @param \Drupal\Core\Form\FormStateInterface $form_state
-   *   Form state.
+   * {@inheritdoc}
    */
-  public function validateEmailAjax(array &$form, FormStateInterface $form_state) {
+  public function validateForm(array &$form, FormStateInterface $form_state): AjaxResponse {
     $response = new AjaxResponse();
-    if ($this->stateForm == "noerror") {
-      $response->addCommand(new HtmlCommand('.highlighted .section', ""));
+    $form_len = strlen($form_state->getValue('cats_name'));
+    $message = [
+      "",
+    ];
+    if ($form_len < 3) {
+      $message = [
+        'The cat name is too short. Please enter a valid cat name',
+        "error",
+      ];
+
     }
-    else {
-      $response->addCommand(new HtmlCommand('.highlighted .section',
-      '<div data-drupal-messages-fallback="" class="hidden"></div><div class="alert-wrapper" data-drupal-messages><div role aria-label="' . $this->stateForm[0] . ' message" class="alert alert-dismissible fade show col-12 alert-' . $this->stateForm[0] . '" role="' . $this->stateForm[2] . '"><button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>' . $this->stateForm[1] . '</div></div>'));
+    elseif ($form_len > 32) {
+      $message = [
+        'The cat name is too long. Please enter a valid cat name',
+        "error",
+      ];
     }
+    elseif (!filter_var($form_state->getValue('email'), FILTER_VALIDATE_EMAIL)) {
+      $message = [
+        "The email is not valid. Please enter a valid email",
+        "error",
+      ];
+    }
+    elseif ($form_state->hasValue('image_cats')) {
+      $message = [
+        "The cat image required",
+        "error",
+      ];
+    }
+    $response->addCommand(new HtmlCommand("#messenger-label", "<span class='text-danger'>" . $message[0] . "</span>"));
     return $response;
   }
 
   /**
    * {@inheritdoc}
-   */
-  public function validateForm(array &$form, FormStateInterface $form_state) {
-
-    $form_len = strlen($form_state->getValue('cats_name'));
-
-    if (!filter_var($form_state->getValue('email'), FILTER_VALIDATE_EMAIL)) {
-      $message = 'The email is not valid. Please enter a valid email';
-      $form_state->setErrorByName('email', $message);
-      $this->stateForm = [
-        'danger', $message, "alert", "email",
-      ];
-    }
-    elseif ($form_len < 3) {
-      $message = 'The cat name is too short. Please enter a valid cat name';
-      $form_state->setErrorByName('cats_name', $message);
-      $this->stateForm = [
-        'danger', $message, "alert", "cats_name",
-      ];
-    }
-    elseif ($form_len > 32) {
-      $message = 'The cat name is too long. Please enter a valid cat name';
-      $form_state->setErrorByName('cats_name', $message);
-      $this->stateForm = [
-        'danger', $message, "alert", "cats_name",
-      ];
-    }
-    else {
-      $this->stateForm["noerror"];
-    }
-
-  }
-
-  /**
-   * {@inheritdoc}
+   *
+   * @throws \Drupal\Core\Entity\EntityStorageException
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
-    $connection = \Drupal::service('database');
+    $connection = Drupal::service('database');
     $event_image = $form_state->getValue('image_cats');
     $file = File::load(reset($event_image));
     $file->setPermanent();
@@ -147,7 +143,7 @@ class CatsForm extends ConfigFormBase {
       ->fields([
         'cats_name' => $form_state->getValue("cats_name"),
         'email' => $form_state->getValue('email'),
-        'created' => \Drupal::time()->getRequestTime(),
+        'created' => Drupal::time()->getRequestTime(),
         'image_url' => $file->getFilename(),
       ])
       ->execute();
@@ -168,26 +164,19 @@ class CatsForm extends ConfigFormBase {
   /**
    * Set Message response to form.
    *
-   * @param array $form
-   *   From ConfigFormBase.
-   * @param \Drupal\Core\Form\FormStateInterface $form_state
-   *   Form state.
-   *
    * @return \Drupal\Core\Ajax\AjaxResponse
    *   Response to form send.
    */
-  public function setMessage(array $form, FormStateInterface $form_state): AjaxResponse {
+  public function setMessage(): AjaxResponse {
 
     $response = new AjaxResponse();
     if ($this->stateForm[0] == 'noerror') {
       $response->addCommand(new HtmlCommand('.highlighted .section', ""));
     }
     else {
-      $response->addCommand(
-      new HtmlCommand(
-        '.highlighted .section',
-        '<div data-drupal-messages-fallback="" class="hidden"></div><div class="alert-wrapper" data-drupal-messages><div role aria-label="' . $this->stateForm[0] . ' message" class="alert alert-dismissible fade show col-12 alert-' . $this->stateForm[0] . '" role="' . $this->stateForm[2] . '"><button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>' . $this->stateForm[1] . '</div></div>'),
-      );
+      $this
+        ->messenger()
+        ->addError($this->stateForm[1]);
     }
     return $response;
 
@@ -196,7 +185,7 @@ class CatsForm extends ConfigFormBase {
   /**
    * {@inheritdoc}
    */
-  protected function getEditableConfigNames() {
+  protected function getEditableConfigNames(): array {
     return [
       'deku.settings',
     ];
