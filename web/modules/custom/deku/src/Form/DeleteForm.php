@@ -42,6 +42,11 @@ class DeleteForm extends ConfigFormBase {
     $form['delete'] = [
       '#type' => 'submit',
       '#value' => $this->t('Delete'),
+      '#attributes' => [
+        'class' => [
+          'btn-danger',
+        ],
+      ],
     ];
     return $form;
   }

@@ -13,4 +13,4 @@ deku.cats:
     _controller: '\Drupal\deku\Controller\DekuController::buildList'
 
   requirements:
-    _permission: "access content"
+    _role: "administrator"

@@ -79,9 +79,10 @@ class CatsForm extends ConfigFormBase {
       '#type' => 'submit',
       '#value' => $this
         ->t('Add cat'),
-      '#ajax' => [
-        'callback' => '::setMessage',
-        'event' => 'click',
+      '#attributes' => [
+        'class' => [
+          'mb-3',
+        ],
       ],
     ];
     $form['label-error'] = [
@@ -118,10 +119,15 @@ class CatsForm extends ConfigFormBase {
         "error",
       ];
     }
-    elseif ($form_state->hasValue('image_cats')) {
+    elseif (!$form_state->hasValue('image_cats')) {
       $message = [
         "The cat image required",
         "error",
+      ];
+    }
+    else {
+      $message = [
+        "",
       ];
     }
     $response->addCommand(new HtmlCommand("#messenger-label", "<span class='text-danger'>" . $message[0] . "</span>"));
@@ -149,37 +155,16 @@ class CatsForm extends ConfigFormBase {
       ->execute();
     if ($result) {
       $message = 'The cat name has been saved';
+      $this
+        ->messenger()
+        ->addStatus($message);
     }
     else {
       $message = "Error, please repeat";
-    }
-    $this
-      ->messenger()
-      ->addStatus($message);
-    $this->stateForm = [
-      "success", $message, "status",
-    ];
-  }
-
-  /**
-   * Set Message response to form.
-   *
-   * @return \Drupal\Core\Ajax\AjaxResponse
-   *   Response to form send.
-   */
-  public function setMessage(): AjaxResponse {
-
-    $response = new AjaxResponse();
-    if ($this->stateForm[0] == 'noerror') {
-      $response->addCommand(new HtmlCommand('.highlighted .section', ""));
-    }
-    else {
       $this
         ->messenger()
-        ->addError($this->stateForm[1]);
+        ->addError($message);
     }
-    return $response;
-
   }
 
   /**
