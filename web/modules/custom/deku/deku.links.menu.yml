@@ -4,3 +4,4 @@ deku.cats:
   parent: system.admin_structure
   route_name: deku.cats
   weight: 10
+

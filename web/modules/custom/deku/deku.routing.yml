@@ -11,6 +11,7 @@ deku.cats:
   defaults:
     _title: "Cats list"
     _controller: '\Drupal\deku\Controller\DekuController::buildList'
-
+    _controller: '\Drupal\deku\Controller\DekuController::build'
+    _form: '\Drupal\deku\Form\CatsForm'
   requirements:
     _role: "administrator"
