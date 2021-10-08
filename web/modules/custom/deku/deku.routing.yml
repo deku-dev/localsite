@@ -2,7 +2,16 @@ deku.example:
   path: "/deku/cats"
   defaults:
     _title: "Cats"
+    _controller: '\Drupal\deku\Controller\DekuController::addCatsPage'
+  requirements:
+    _permission: "access content"
+
+deku.cats:
+  path: "/deku/list"
+  defaults:
+    _title: "Cats list"
+    _controller: '\Drupal\deku\Controller\DekuController::buildList'
     _controller: '\Drupal\deku\Controller\DekuController::build'
     _form: '\Drupal\deku\Form\CatsForm'
   requirements:
-    _permission: "access content"
+    _role: "administrator"

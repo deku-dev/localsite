@@ -1,0 +1,7 @@
+deku.cats:
+  title: Cats list
+  description: List all cats added.
+  parent: system.admin_structure
+  route_name: deku.cats
+  weight: 10
+
