@@ -8,3 +8,17 @@
  * This file is no longer required in Drupal 8.
  * @see https://www.drupal.org/node/2217931
  */
+function deku_theme($existing, $type, $theme, $path) {
+  return array(
+    'cats-template' => array(
+      'variables' => array(
+        'cats_list' => NULL,
+        'form_edit'=>NULL,
+        'form_delete' => NULL,
+      ),
+      'render element' => 'form',
+      'template' =>'cats-template',
+    )
+  );
+}
+
